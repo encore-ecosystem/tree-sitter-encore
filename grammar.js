@@ -38,6 +38,7 @@ module.exports = grammar({
     [$.expression_statement, $.expression],
     [$.match_statement, $.match_expression],
     [$.unsafe_statement, $.unsafe_expression],
+    [$.tuple_literal, $.parenthesized_expression],
   ],
 
   rules: {
@@ -59,6 +60,8 @@ module.exports = grammar({
       token.immediate(/_(?:usize|isize|[ui][0-9]+|f[0-9]+)/),
 
     visibility_modifier: (_) => "pub",
+    function_attribute: ($) =>
+      seq("#", "attr", "(", field("name", $.identifier), repeat(seq(",", field("name", $.identifier))), ")"),
 
     any_pointer_suffix: (_) => "&",
     smart_pointer_suffix: (_) => seq("<", choice("H", "S"), ">"),
@@ -81,6 +84,7 @@ module.exports = grammar({
         optional(field("visibility", $.visibility_modifier)),
         "import",
         field("path", $.import_path),
+        optional(seq("as", field("alias", $.identifier))),
       ),
 
     import_path: ($) =>
@@ -143,7 +147,7 @@ module.exports = grammar({
         optional(field("generics", $.type_arguments)),
         optional(field("bases", $.trait_bases)),
         "{",
-        repeat(field("method", $.function_signature)),
+        repeat(seq(repeat(field("attribute", $.function_attribute)), field("method", $.function_signature))),
         "}",
       ),
 
@@ -164,6 +168,7 @@ module.exports = grammar({
 
     impl_method_definition: ($) =>
       seq(
+        repeat(field("attribute", $.function_attribute)),
         optional(field("visibility", $.visibility_modifier)),
         field("signature", $.function_signature),
         field("body", $.block),
@@ -171,6 +176,7 @@ module.exports = grammar({
 
     function_definition: ($) =>
       seq(
+        repeat(field("attribute", $.function_attribute)),
         optional(field("visibility", $.visibility_modifier)),
         field("signature", $.function_signature),
         field("body", $.block),
@@ -178,6 +184,7 @@ module.exports = grammar({
 
     extern_function_definition: ($) =>
       seq(
+        repeat(field("attribute", $.function_attribute)),
         optional(field("visibility", $.visibility_modifier)),
         "extern",
         field("signature", $.function_signature),
@@ -243,6 +250,7 @@ module.exports = grammar({
         $.if_statement,
         $.match_statement,
         $.unsafe_statement,
+        $.ehir_statement,
         $.break_statement,
         $.continue_statement,
         $.assignment_statement,
@@ -276,6 +284,11 @@ module.exports = grammar({
       seq("do", field("body", $.block), "while", field("condition", $.expression)),
 
     unsafe_statement: ($) => seq("unsafe", field("body", $.block)),
+    ehir_statement: ($) =>
+      choice(
+        seq("ehir", "{", field("body", repeat(choice(/[^{}]+/, /\{[^{}]*\}/))), "}"),
+        seq("unsafe", "ehir", "{", field("body", repeat(choice(/[^{}]+/, /\{[^{}]*\}/))), "}"),
+      ),
 
     break_statement: ($) => seq("break", optional(field("label", $.loop_label))),
     continue_statement: ($) =>
@@ -386,6 +399,10 @@ module.exports = grammar({
         $.field_access_expression,
         $.struct_initializer,
         $.parenthesized_expression,
+        $.tuple_literal,
+        $.array_literal,
+        $.array_repeat_literal,
+        $.index_expression,
         $.path,
         $.integer_literal,
         $.float_literal,
@@ -396,6 +413,10 @@ module.exports = grammar({
     unsafe_expression: ($) => seq("unsafe", field("body", $.block)),
 
     parenthesized_expression: ($) => seq("(", $.expression, ")"),
+    tuple_literal: ($) => seq("(", commaSep1($.expression), optional(","), ")"),
+    array_literal: ($) => seq("[", commaSepTrailing($.expression), "]"),
+    array_repeat_literal: ($) =>
+      seq("[", field("value", $.expression), ";", field("size", $.expression), "]"),
 
     integer_literal: ($) =>
       seq(field("value", $.integer), optional(field("suffix", $.numeric_suffix))),
@@ -440,6 +461,8 @@ module.exports = grammar({
           field("field", $.identifier),
         ),
       ),
+    index_expression: ($) =>
+      prec.left(PREC.FIELD, seq(field("object", $.expression), "[", field("index", $.expression), "]")),
 
     try_expression: ($) =>
       prec.left(PREC.TRY, seq(field("expression", $.expression), "?")),
@@ -448,7 +471,7 @@ module.exports = grammar({
       prec.right(
         PREC.UNARY,
         seq(
-          field("operator", choice("+", "-", "!", "~", "++", "--")),
+          field("operator", choice("+", "-", "!", "~", "not", "++", "--")),
           field("operand", $.expression),
         ),
       ),
