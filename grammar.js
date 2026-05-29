@@ -8,6 +8,7 @@
 // @ts-check
 
 const PREC = {
+  RANGE: 0,
   LOGICAL_OR: 1,
   LOGICAL_AND: 2,
   BIT_OR: 3,
@@ -39,6 +40,7 @@ module.exports = grammar({
     [$.match_statement, $.match_expression],
     [$.unsafe_statement, $.unsafe_expression],
     [$.tuple_literal, $.parenthesized_expression],
+    [$.expression_statement, $.range_expression],
   ],
 
   rules: {
@@ -77,6 +79,17 @@ module.exports = grammar({
         $.impl_definition,
         $.function_definition,
         $.extern_function_definition,
+        $.global_let_statement,
+      ),
+
+    global_let_statement: ($) =>
+      seq(
+        optional(field("visibility", $.visibility_modifier)),
+        "let",
+        field("name", $.identifier),
+        optional(seq(":", field("type", $.type))),
+        "=",
+        field("value", $.expression),
       ),
 
     import_statement: ($) =>
@@ -219,11 +232,13 @@ module.exports = grammar({
     type_arguments: ($) => seq("[", commaSepTrailing($.type), "]"),
 
     type: ($) =>
-      seq(
-        optional(field("mutability", "mut")),
-        field("name", $.identifier),
-        optional(field("generics", $.type_arguments)),
-        optional(field("pointer", choice($.smart_pointer_suffix, $.any_pointer_suffix))),
+      prec.right(
+        seq(
+          optional(field("mutability", "mut")),
+          field("name", $.identifier),
+          optional(field("generics", $.type_arguments)),
+          optional(field("pointer", choice($.smart_pointer_suffix, $.any_pointer_suffix))),
+        ),
       ),
 
     path: ($) => seq($.path_segment, repeat(seq("::", $.path_segment))),
@@ -245,8 +260,10 @@ module.exports = grammar({
         $.return_statement,
         $.let_statement,
         $.do_while_statement,
+        $.for_statement,
         $.while_statement,
         $.loop_statement,
+        $.with_statement,
         $.if_statement,
         $.match_statement,
         $.unsafe_statement,
@@ -282,6 +299,24 @@ module.exports = grammar({
 
     do_while_statement: ($) =>
       seq("do", field("body", $.block), "while", field("condition", $.expression)),
+
+    for_statement: ($) =>
+      seq(
+        "for",
+        field("item", $.identifier),
+        "in",
+        field("iterable", $.expression),
+        field("body", $.block),
+      ),
+
+    with_statement: ($) =>
+      seq(
+        "with",
+        field("resource", $.expression),
+        "as",
+        field("binding", $.identifier),
+        field("body", $.block),
+      ),
 
     unsafe_statement: ($) => seq("unsafe", field("body", $.block)),
     ehir_statement: ($) =>
@@ -386,11 +421,21 @@ module.exports = grammar({
         $.if_expression,
         $.match_expression,
         $.unsafe_expression,
-        $._statement_expression,
+        $.range_expression,
+      ),
+
+    range_expression: ($) =>
+      prec.right(
+        PREC.RANGE,
+        seq(
+          field("start", $._statement_expression),
+          optional(seq(field("operator", choice("..", "..=")), field("end", $.expression))),
+        ),
       ),
 
     _statement_expression: ($) =>
       choice(
+        $.cast_expression,
         $.binary_expression,
         $.unary_expression,
         $.try_expression,
@@ -408,6 +453,12 @@ module.exports = grammar({
         $.float_literal,
         $.string_literal,
         $.boolean_literal,
+      ),
+
+    cast_expression: ($) =>
+      prec.left(
+        PREC.MUL + 1,
+        seq(field("value", $._statement_expression), "as", field("target", $.type)),
       ),
 
     unsafe_expression: ($) => seq("unsafe", field("body", $.block)),

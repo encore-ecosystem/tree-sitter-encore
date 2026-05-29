@@ -8,6 +8,7 @@
   "trait"
   "impl"
   "for"
+  "in"
   "let"
   "mut"
   "ret"
@@ -22,6 +23,7 @@
   "match"
   "import"
   "as"
+  "with"
   "extern"
   "unsafe"
   "ehir"
@@ -94,8 +96,12 @@
 
 (typed_parameter name: (identifier) @variable.parameter)
 (receiver_parameter "self" @variable.builtin)
+(for_statement item: (identifier) @variable.parameter)
+(with_statement binding: (identifier) @variable.parameter)
+(let_statement name: (identifier) @variable)
+(global_let_statement name: (identifier) @variable)
 
-(import_path module: (identifier) @module)
+(import_path (identifier) @module)
 (import_statement alias: (identifier) @module)
 
 (struct_definition signature: (struct_signature name: (identifier) @type))
