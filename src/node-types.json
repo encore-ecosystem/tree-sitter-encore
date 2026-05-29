@@ -293,6 +293,10 @@
             "named": true
           },
           {
+            "type": "macro_invocation",
+            "named": true
+          },
+          {
             "type": "method_call_expression",
             "named": true
           },
@@ -594,6 +598,10 @@
         },
         {
           "type": "integer_literal",
+          "named": true
+        },
+        {
+          "type": "macro_invocation",
           "named": true
         },
         {
@@ -1360,6 +1368,89 @@
     }
   },
   {
+    "type": "macro_delimited_tokens",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "macro_invocation",
+    "named": true,
+    "fields": {
+      "arguments": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "macro_delimited_tokens",
+            "named": true
+          }
+        ]
+      },
+      "macro": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "path",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "macro_rules_arm",
+    "named": true,
+    "fields": {
+      "pattern": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "macro_delimited_tokens",
+            "named": true
+          }
+        ]
+      },
+      "template": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "macro_delimited_tokens",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "macro_rules_definition",
+    "named": true,
+    "fields": {
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "identifier",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "macro_rules_arm",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "match_binding",
     "named": true,
     "fields": {
@@ -1718,6 +1809,10 @@
             "named": true
           },
           {
+            "type": "macro_invocation",
+            "named": true
+          },
+          {
             "type": "method_call_expression",
             "named": true
           },
@@ -1821,6 +1916,10 @@
         },
         {
           "type": "import_statement",
+          "named": true
+        },
+        {
+          "type": "macro_rules_definition",
           "named": true
         },
         {
@@ -2635,6 +2734,10 @@
   },
   {
     "type": "loop",
+    "named": false
+  },
+  {
+    "type": "macro_rules",
     "named": false
   },
   {

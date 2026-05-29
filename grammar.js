@@ -73,6 +73,7 @@ module.exports = grammar({
     _top_level_item: ($) =>
       choice(
         $.import_statement,
+        $.macro_rules_definition,
         $.struct_definition,
         $.enum_definition,
         $.trait_definition,
@@ -98,6 +99,31 @@ module.exports = grammar({
         "import",
         field("path", $.import_path),
         optional(seq("as", field("alias", $.identifier))),
+      ),
+
+    macro_rules_definition: ($) =>
+      seq(
+        "macro_rules",
+        "!",
+        field("name", $.identifier),
+        "{",
+        repeat($.macro_rules_arm),
+        "}",
+      ),
+
+    macro_rules_arm: ($) =>
+      seq(
+        field("pattern", $.macro_delimited_tokens),
+        "=>",
+        field("template", $.macro_delimited_tokens),
+        optional(";"),
+      ),
+
+    macro_delimited_tokens: ($) =>
+      choice(
+        seq("(", field("body", repeat(choice(/[^()\[\]{}]+/, /\([^()]*\)/, /\[[^\[\]]*\]/, /\{[^{}]*\}/))), ")"),
+        seq("[", field("body", repeat(choice(/[^()\[\]{}]+/, /\([^()]*\)/, /\[[^\[\]]*\]/, /\{[^{}]*\}/))), "]"),
+        seq("{", field("body", repeat(choice(/[^()\[\]{}]+/, /\([^()]*\)/, /\[[^\[\]]*\]/, /\{[^{}]*\}/))), "}"),
       ),
 
     import_path: ($) =>
@@ -435,6 +461,7 @@ module.exports = grammar({
 
     _statement_expression: ($) =>
       choice(
+        $.macro_invocation,
         $.cast_expression,
         $.binary_expression,
         $.unary_expression,
@@ -453,6 +480,16 @@ module.exports = grammar({
         $.float_literal,
         $.string_literal,
         $.boolean_literal,
+      ),
+
+    macro_invocation: ($) =>
+      prec(
+        PREC.CALL + 1,
+        seq(
+          field("macro", $.path),
+          "!",
+          field("arguments", $.macro_delimited_tokens),
+        ),
       ),
 
     cast_expression: ($) =>
