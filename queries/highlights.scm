@@ -91,23 +91,24 @@
 (float_literal) @number.float
 (boolean_literal) @boolean
 
-(function_signature name: (identifier) @function)
-(call_expression function: (path (path_segment name: (identifier) @function.call)))
-(method_call_expression method: (identifier) @function.method.call)
-(macro_rules_definition name: (identifier) @function.macro)
-(macro_invocation macro: (path (path_segment name: (identifier) @function.macro)))
-
 (typed_parameter name: (identifier) @variable.parameter)
 (receiver_parameter "self" @variable.builtin)
 (for_statement item: (identifier) @variable.parameter)
 (with_statement binding: (identifier) @variable.parameter)
 (let_statement name: (identifier) @variable)
 (global_let_statement name: (identifier) @variable)
-((path (path_segment name: (identifier) @variable))
+((range_expression
+   start: (path (path_segment name: (identifier) @variable)))
  (#match? @variable "^[a-z_][A-Za-z0-9_]*$"))
 
 (import_path (identifier) @module)
 (import_statement alias: (identifier) @module)
+
+(function_signature name: (identifier) @function)
+(call_expression function: (path (path_segment name: (identifier) @function.call)))
+(method_call_expression method: (identifier) @function.method.call)
+(macro_rules_definition name: (identifier) @function.macro)
+(macro_invocation macro: (path (path_segment name: (identifier) @function.macro)))
 
 (struct_definition signature: (struct_signature name: (identifier) @type))
 (enum_definition name: (identifier) @type)

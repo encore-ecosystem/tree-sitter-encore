@@ -1537,7 +1537,23 @@
       "required": false,
       "types": [
         {
+          "type": "boolean_literal",
+          "named": true
+        },
+        {
+          "type": "float_literal",
+          "named": true
+        },
+        {
+          "type": "integer_literal",
+          "named": true
+        },
+        {
           "type": "path",
+          "named": true
+        },
+        {
+          "type": "string_literal",
           "named": true
         }
       ]

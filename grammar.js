@@ -439,7 +439,15 @@ module.exports = grammar({
         field("value", $.expression),
       ),
 
-    match_pattern: ($) => choice("_", $.path),
+    match_pattern: ($) =>
+      choice(
+        "_",
+        $.path,
+        $.integer_literal,
+        $.float_literal,
+        $.string_literal,
+        $.boolean_literal,
+      ),
     match_binding: ($) => seq("(", field("name", $.identifier), ")"),
 
     expression: ($) =>
