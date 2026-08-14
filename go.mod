@@ -1,4 +1,4 @@
-module github.com/encore-language/tree-sitter-encore
+module github.com/encore-ecosystem/tree-sitter-encore
 
 go 1.22
 

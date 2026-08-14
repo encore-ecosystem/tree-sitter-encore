@@ -1,8 +1,8 @@
 {
   "name": "tree-sitter-encore",
-  "version": "0.1.0",
+  "version": "0.2.1",
   "description": "Encore grammar for tree-sitter",
-  "repository": "https://github.com/encore-language/tree-sitter-encore",
+  "repository": "https://github.com/encore-ecosystem/tree-sitter-encore",
   "license": "MIT",
   "author": {
     "name": "Maksim Shushkevich",

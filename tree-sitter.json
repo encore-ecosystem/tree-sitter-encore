@@ -14,7 +14,7 @@
     }
   ],
   "metadata": {
-    "version": "0.1.0",
+    "version": "0.2.1",
     "license": "MIT",
     "description": "Encore grammar for tree-sitter",
     "authors": [
@@ -25,7 +25,7 @@
       }
     ],
     "links": {
-      "repository": "https://github.com/encore-language/tree-sitter-encore"
+      "repository": "https://github.com/encore-ecosystem/tree-sitter-encore"
     }
   },
   "bindings": {

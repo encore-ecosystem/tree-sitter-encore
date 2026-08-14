@@ -3,6 +3,9 @@
 
 [
   "fn"
+  "async"
+  "await"
+  "spawn"
   "struct"
   "enum"
   "trait"
@@ -10,6 +13,7 @@
   "for"
   "in"
   "let"
+  "static"
   "mut"
   "ret"
   "while"
@@ -42,6 +46,7 @@
   "+"
   "-"
   "*"
+  "**"
   "/"
   "%"
   "=="
@@ -54,7 +59,14 @@
   "+="
   "-="
   "*="
+  "**="
   "/="
+  "%="
+  "&="
+  "|="
+  "^="
+  "<<="
+  ">>="
   "&&"
   "||"
   "&"
@@ -92,11 +104,13 @@
 (boolean_literal) @boolean
 
 (typed_parameter name: (identifier) @variable.parameter)
+(closure_parameter name: (identifier) @variable.parameter)
 (receiver_parameter "self" @variable.builtin)
 (for_statement item: (identifier) @variable.parameter)
 (with_statement binding: (identifier) @variable.parameter)
 (let_statement name: (identifier) @variable)
 (global_let_statement name: (identifier) @variable)
+(global_static_statement name: (identifier) @constant)
 ((range_expression
    start: (path (path_segment name: (identifier) @variable)))
  (#match? @variable "^[a-z_][A-Za-z0-9_]*$"))
@@ -120,3 +134,5 @@
 
 (field_access_expression field: (identifier) @property)
 (function_attribute name: (identifier) @attribute)
+(decorator_application "@" @punctuation.special)
+(decorator_application value: (expression) @attribute)

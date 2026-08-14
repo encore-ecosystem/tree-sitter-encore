@@ -1,0 +1,75 @@
+==================
+typed and block pipe closures
+==================
+
+fn main() -> u32 {
+    let action = |amount: u32| {
+        consume(amount)
+        consume(amount)
+    }
+    let idle = || 0_u32
+    ret 0_u32
+}
+
+---
+
+(source_file
+  (function_definition
+    (function_signature
+      (identifier)
+      (type
+        (identifier)))
+    (block
+      (statement
+        (let_statement
+          (identifier)
+          (expression
+            (range_expression
+              (closure_expression
+                (closure_parameter
+                  (identifier)
+                  (type
+                    (identifier)))
+                (expression_block
+                  (statement
+                    (expression_statement
+                      (call_expression
+                        (path
+                          (path_segment
+                            (identifier)))
+                        (argument_list
+                          (expression
+                            (range_expression
+                              (path
+                                (path_segment
+                                  (identifier)))))))))
+                  (expression
+                    (range_expression
+                      (call_expression
+                        (path
+                          (path_segment
+                            (identifier)))
+                        (argument_list
+                          (expression
+                            (range_expression
+                              (path
+                                (path_segment
+                                  (identifier)))))))))))))))
+      (statement
+        (let_statement
+          (identifier)
+          (expression
+            (range_expression
+              (closure_expression
+                (expression
+                  (range_expression
+                    (integer_literal
+                      (integer)
+                      (numeric_suffix)))))))))
+      (statement
+        (return_statement
+          (expression
+            (range_expression
+              (integer_literal
+                (integer)
+                (numeric_suffix)))))))))

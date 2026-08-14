@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "tree-sitter-encore"
 description = "Encore grammar for tree-sitter"
-version = "0.1.0"
+version = "0.2.1"
 keywords = ["incremental", "parsing", "tree-sitter", "encore"]
 classifiers = [
   "Intended Audience :: Developers",
@@ -19,7 +19,7 @@ license.text = "MIT"
 readme = "README.md"
 
 [project.urls]
-Homepage = "https://github.com/encore-language/tree-sitter-encore"
+Homepage = "https://github.com/encore-ecosystem/tree-sitter-encore"
 
 [project.optional-dependencies]
 core = ["tree-sitter~=0.24"]

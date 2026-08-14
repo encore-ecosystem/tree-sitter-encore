@@ -3,8 +3,8 @@ $(error Windows is not supported)
 endif
 
 LANGUAGE_NAME := tree-sitter-encore
-HOMEPAGE_URL := https://github.com/encore-language/tree-sitter-encore
-VERSION := 0.1.0
+HOMEPAGE_URL := https://github.com/encore-ecosystem/tree-sitter-encore
+VERSION := 0.2.1
 
 # repository
 SRC_DIR := src

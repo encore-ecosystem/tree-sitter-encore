@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.13)
 
 project(tree-sitter-encore
-        VERSION "0.1.0"
+        VERSION "0.2.1"
         DESCRIPTION "Encore grammar for tree-sitter"
-        HOMEPAGE_URL "https://github.com/encore-language/tree-sitter-encore"
+        HOMEPAGE_URL "https://github.com/encore-ecosystem/tree-sitter-encore"
         LANGUAGES C)
 
 option(BUILD_SHARED_LIBS "Build using shared libraries" ON)

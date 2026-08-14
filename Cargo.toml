@@ -1,13 +1,13 @@
 [package]
 name = "tree-sitter-encore"
 description = "Encore grammar for tree-sitter"
-version = "0.1.0"
+version = "0.2.1"
 authors = ["Maksim Shushkevich <m.e.shushkevich@yandex.com>"]
 license = "MIT"
 readme = "README.md"
 keywords = ["incremental", "parsing", "tree-sitter", "encore"]
 categories = ["parser-implementations", "parsing", "text-editors"]
-repository = "https://github.com/encore-language/tree-sitter-encore"
+repository = "https://github.com/encore-ecosystem/tree-sitter-encore"
 edition = "2021"
 autoexamples = false
 

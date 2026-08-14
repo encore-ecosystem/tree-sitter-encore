@@ -63,7 +63,30 @@ module.exports = grammar({
 
     visibility_modifier: (_) => "pub",
     function_attribute: ($) =>
-      seq("#", "attr", "(", field("name", $.identifier), repeat(seq(",", field("name", $.identifier))), ")"),
+      seq(
+        "#",
+        field("name", $.identifier),
+        optional(field("arguments", $.metadata_arguments)),
+      ),
+
+    metadata_arguments: ($) =>
+      seq(
+        "(",
+        repeat(
+          choice(
+            $.identifier,
+            $.string_literal,
+            $.integer_literal,
+            "=",
+            ",",
+            $.metadata_arguments,
+          ),
+        ),
+        ")",
+      ),
+
+    decorator_application: ($) =>
+      seq("@", field("value", $.expression)),
 
     any_pointer_suffix: (_) => "&",
     smart_pointer_suffix: (_) => seq("<", choice("H", "S"), ">"),
@@ -81,12 +104,24 @@ module.exports = grammar({
         $.function_definition,
         $.extern_function_definition,
         $.global_let_statement,
+        $.global_static_statement,
       ),
 
     global_let_statement: ($) =>
       seq(
         optional(field("visibility", $.visibility_modifier)),
         "let",
+        field("name", $.identifier),
+        optional(seq(":", field("type", $.type))),
+        "=",
+        field("value", $.expression),
+      ),
+
+    global_static_statement: ($) =>
+      seq(
+        repeat(field("attribute", $.function_attribute)),
+        optional(field("visibility", $.visibility_modifier)),
+        "static",
         field("name", $.identifier),
         optional(seq(":", field("type", $.type))),
         "=",
@@ -186,7 +221,13 @@ module.exports = grammar({
         optional(field("generics", $.type_arguments)),
         optional(field("bases", $.trait_bases)),
         "{",
-        repeat(seq(repeat(field("attribute", $.function_attribute)), field("method", $.function_signature))),
+        repeat(
+          seq(
+            repeat(field("attribute", $.function_attribute)),
+            repeat(field("decorator", $.decorator_application)),
+            field("method", $.function_signature),
+          ),
+        ),
         "}",
       ),
 
@@ -208,6 +249,7 @@ module.exports = grammar({
     impl_method_definition: ($) =>
       seq(
         repeat(field("attribute", $.function_attribute)),
+        repeat(field("decorator", $.decorator_application)),
         optional(field("visibility", $.visibility_modifier)),
         field("signature", $.function_signature),
         field("body", $.block),
@@ -216,6 +258,7 @@ module.exports = grammar({
     function_definition: ($) =>
       seq(
         repeat(field("attribute", $.function_attribute)),
+        repeat(field("decorator", $.decorator_application)),
         optional(field("visibility", $.visibility_modifier)),
         field("signature", $.function_signature),
         field("body", $.block),
@@ -224,13 +267,16 @@ module.exports = grammar({
     extern_function_definition: ($) =>
       seq(
         repeat(field("attribute", $.function_attribute)),
+        repeat(field("decorator", $.decorator_application)),
         optional(field("visibility", $.visibility_modifier)),
+        optional(field("async", "async")),
         "extern",
         field("signature", $.function_signature),
       ),
 
     function_signature: ($) =>
       seq(
+        optional(field("async", "async")),
         "fn",
         field("name", $.identifier),
         optional(field("generics", $.type_arguments)),
@@ -360,7 +406,9 @@ module.exports = grammar({
         field("target", $.assignment_target),
         field(
           "operator",
-          choice("=", "+=", "-=", "*=", "/="),
+          choice(
+            "=", "+=", "-=", "*=", "**=", "/=", "%=", "&=", "|=", "^=", "<<=", ">>=",
+          ),
         ),
         field("value", $.expression),
       ),
@@ -469,6 +517,7 @@ module.exports = grammar({
 
     _statement_expression: ($) =>
       choice(
+        $.closure_expression,
         $.macro_invocation,
         $.cast_expression,
         $.binary_expression,
@@ -488,6 +537,27 @@ module.exports = grammar({
         $.float_literal,
         $.string_literal,
         $.boolean_literal,
+      ),
+
+    closure_expression: ($) =>
+      prec.right(
+        PREC.RANGE,
+        seq(
+          field(
+            "parameters",
+            choice(
+              "||",
+              seq("|", commaSep($.closure_parameter), "|"),
+            ),
+          ),
+          field("body", choice($.expression_block, $.block, $.expression)),
+        ),
+      ),
+
+    closure_parameter: ($) =>
+      seq(
+        field("name", $.identifier),
+        optional(seq(":", field("type", $.type))),
       ),
 
     macro_invocation: ($) =>
@@ -567,7 +637,10 @@ module.exports = grammar({
       prec.right(
         PREC.UNARY,
         seq(
-          field("operator", choice("+", "-", "!", "~", "not", "++", "--")),
+          field(
+            "operator",
+            choice("+", "-", "!", "~", "not", "++", "--", "await", "spawn"),
+          ),
           field("operand", $.expression),
         ),
       ),
@@ -633,6 +706,10 @@ module.exports = grammar({
             choice("*", "/", "%"),
             field("right", $.expression),
           ),
+        ),
+        prec.right(
+          PREC.UNARY,
+          seq(field("left", $.expression), "**", field("right", $.expression)),
         ),
       ),
   },

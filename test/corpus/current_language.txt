@@ -1,0 +1,129 @@
+==================
+async, spawn, static, metadata, and decorators
+==================
+
+#cfg(any(target_os = "linux", target_os = "macos"))
+static RENDER_PROFILE: Profile = Profile{1_u32}
+
+#attr(decorator)
+fn profile[Args](func: Callable[Args, u32], args: Args) -> u32 {
+    ret func(args)
+}
+
+@RENDER_PROFILE.profile("draw_frame")
+async fn draw_frame() -> u32 {
+    let pending = spawn worker()
+    ret await pending
+}
+
+---
+
+(source_file
+  (global_static_statement
+    (function_attribute
+      (identifier)
+      (metadata_arguments
+        (identifier)
+        (metadata_arguments
+          (identifier)
+          (string_literal)
+          (identifier)
+          (string_literal))))
+    (identifier)
+    (type
+      (identifier))
+    (expression
+      (range_expression
+        (struct_initializer
+          (type
+            (identifier))
+          (expression
+            (range_expression
+              (integer_literal
+                (integer)
+                (numeric_suffix))))))))
+  (function_definition
+    (function_attribute
+      (identifier)
+      (metadata_arguments
+        (identifier)))
+    (function_signature
+      (identifier)
+      (type_arguments
+        (type
+          (identifier)))
+      (parameter
+        (typed_parameter
+          (identifier)
+          (type
+            (identifier)
+            (type_arguments
+              (type
+                (identifier))
+              (type
+                (identifier))))))
+      (parameter
+        (typed_parameter
+          (identifier)
+          (type
+            (identifier))))
+      (type
+        (identifier)))
+    (block
+      (statement
+        (return_statement
+          (expression
+            (range_expression
+              (call_expression
+                (path
+                  (path_segment
+                    (identifier)))
+                (argument_list
+                  (expression
+                    (range_expression
+                      (path
+                        (path_segment
+                          (identifier)))))))))))))
+  (function_definition
+    (decorator_application
+      (expression
+        (range_expression
+          (method_call_expression
+            (expression
+              (range_expression
+                (path
+                  (path_segment
+                    (identifier)))))
+            (identifier)
+            (argument_list
+              (expression
+                (range_expression
+                  (string_literal))))))))
+    (function_signature
+      (identifier)
+      (type
+        (identifier)))
+    (block
+      (statement
+        (let_statement
+          (identifier)
+          (expression
+            (range_expression
+              (unary_expression
+                (expression
+                  (range_expression
+                    (call_expression
+                      (path
+                        (path_segment
+                          (identifier)))
+                      (argument_list)))))))))
+      (statement
+        (return_statement
+          (expression
+            (range_expression
+              (unary_expression
+                (expression
+                  (range_expression
+                    (path
+                      (path_segment
+                        (identifier)))))))))))))
