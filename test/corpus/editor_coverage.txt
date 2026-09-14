@@ -1,0 +1,197 @@
+==================
+current type and expression forms
+==================
+
+fn example(values: frozen Vec[str], moved: sending Vec[str]) -> (u32, bool) {
+    let numbers = (0xff_u32, 0b10, 0o755)
+    let selected = match values.get(0_usize) {
+        Some(value) => { ret (numbers.0, true) }
+        None => numbers.1
+    }
+    match selected { 0 => () _ => () }
+    with Resource{true} as resource { ret (selected, resource.open) }
+    ret (selected, false)
+}
+
+fn empty() -> () { ret () }
+
+---
+
+(source_file
+  (function_definition
+    (function_signature
+      (identifier)
+      (parameter
+        (typed_parameter
+          (identifier)
+          (type
+            (identifier)
+            (type_arguments
+              (type
+                (identifier))))))
+      (parameter
+        (typed_parameter
+          (identifier)
+          (type
+            (identifier)
+            (type_arguments
+              (type
+                (identifier))))))
+      (type
+        (type
+          (identifier))
+        (type
+          (identifier))))
+    (block
+      (statement
+        (let_statement
+          (identifier)
+          (expression
+            (range_expression
+              (tuple_literal
+                (expression
+                  (range_expression
+                    (integer_literal
+                      (integer)
+                      (numeric_suffix))))
+                (expression
+                  (range_expression
+                    (integer_literal
+                      (integer))))
+                (expression
+                  (range_expression
+                    (integer_literal
+                      (integer)))))))))
+      (statement
+        (let_statement
+          (identifier)
+          (expression
+            (match_expression
+              (expression
+                (range_expression
+                  (method_call_expression
+                    (expression
+                      (range_expression
+                        (path
+                          (path_segment
+                            (identifier)))))
+                    (identifier)
+                    (argument_list
+                      (expression
+                        (range_expression
+                          (integer_literal
+                            (integer)
+                            (numeric_suffix))))))))
+              (match_expression_arm
+                (match_pattern
+                  (path
+                    (path_segment
+                      (identifier))))
+                (match_binding
+                  (identifier))
+                (block
+                  (statement
+                    (return_statement
+                      (expression
+                        (range_expression
+                          (tuple_literal
+                            (expression
+                              (range_expression
+                                (field_access_expression
+                                  (expression
+                                    (range_expression
+                                      (path
+                                        (path_segment
+                                          (identifier)))))
+                                  (integer))))
+                            (expression
+                              (range_expression
+                                (boolean_literal))))))))))
+              (match_expression_arm
+                (match_pattern
+                  (path
+                    (path_segment
+                      (identifier))))
+                (expression
+                  (range_expression
+                    (field_access_expression
+                      (expression
+                        (range_expression
+                          (path
+                            (path_segment
+                              (identifier)))))
+                      (integer)))))))))
+      (statement
+        (expression_statement
+          (expression
+            (match_expression
+              (expression
+                (range_expression
+                  (path
+                    (path_segment
+                      (identifier)))))
+              (match_expression_arm
+                (match_pattern
+                  (integer_literal
+                    (integer)))
+                (expression
+                  (range_expression
+                    (tuple_literal))))
+              (match_expression_arm
+                (match_pattern)
+                (expression
+                  (range_expression
+                    (tuple_literal))))))))
+      (statement
+        (with_statement
+          (expression
+            (struct_initializer
+              (type
+                (identifier))
+              (expression
+                (range_expression
+                  (boolean_literal)))))
+          (identifier)
+          (block
+            (statement
+              (return_statement
+                (expression
+                  (range_expression
+                    (tuple_literal
+                      (expression
+                        (range_expression
+                          (path
+                            (path_segment
+                              (identifier)))))
+                      (expression
+                        (range_expression
+                          (field_access_expression
+                            (expression
+                              (range_expression
+                                (path
+                                  (path_segment
+                                    (identifier)))))
+                            (identifier))))))))))))
+      (statement
+        (return_statement
+          (expression
+            (range_expression
+              (tuple_literal
+                (expression
+                  (range_expression
+                    (path
+                      (path_segment
+                        (identifier)))))
+                (expression
+                  (range_expression
+                    (boolean_literal))))))))))
+  (function_definition
+    (function_signature
+      (identifier)
+      (type))
+    (block
+      (statement
+        (return_statement
+          (expression
+            (range_expression
+              (tuple_literal))))))))
