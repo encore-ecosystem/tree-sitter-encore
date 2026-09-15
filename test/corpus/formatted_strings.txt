@@ -1,0 +1,37 @@
+==================
+formatted strings
+==================
+
+fn main() -> str {
+    let name = "Encore"
+    ret f"Hello, {name}!"
+}
+
+---
+
+(source_file
+  (function_definition
+    (function_signature
+      (identifier)
+      (type
+        (identifier)))
+    (block
+      (statement
+        (let_statement
+          (identifier)
+          (expression
+            (range_expression
+              (string_literal)))))
+      (statement
+        (return_statement
+          (expression
+            (range_expression
+              (formatted_string_literal
+                (formatted_string_text)
+                (formatted_string_interpolation
+                  (expression
+                    (range_expression
+                      (path
+                        (path_segment
+                          (identifier))))))
+                (formatted_string_text)))))))))

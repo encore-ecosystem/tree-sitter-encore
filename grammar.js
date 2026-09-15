@@ -37,9 +37,12 @@ module.exports = grammar({
     [$.path_segment],
     [$.type, $.path_segment],
     [$.expression_statement, $.expression],
+    [$.expression_block, $.expression_statement],
     [$.match_statement, $.match_expression],
+    [$.match_statement_arm, $.match_expression_arm],
     [$.unsafe_statement, $.unsafe_expression],
     [$.tuple_literal, $.parenthesized_expression],
+    [$.type, $.tuple_literal],
     [$.expression_statement, $.range_expression],
   ],
 
@@ -51,11 +54,20 @@ module.exports = grammar({
 
     identifier: (_) => /[A-Za-z_][A-Za-z0-9_]*/,
 
-    integer: (_) => /[0-9]+/,
+    integer: (_) => /0[xX][0-9a-fA-F]+|0[bB][01]+|0[oO][0-7]+|[0-9]+/,
     float: (_) => /[0-9]+\.[0-9]+/,
 
     string_literal: (_) =>
       token(seq('"', repeat(choice(/[^"\\\n]+/, /\\./)), '"')),
+    formatted_string_literal: ($) =>
+      seq(
+        token(seq("f", '"')),
+        repeat(choice($.formatted_string_text, $.formatted_string_interpolation)),
+        '"',
+      ),
+    formatted_string_text: (_) => token.immediate(choice(/[^"{}\\\n]+/, /\\./)),
+    formatted_string_interpolation: ($) =>
+      seq("{", optional(field("value", $.expression)), "}"),
     boolean_literal: (_) => choice("true", "false"),
 
     numeric_suffix: (_) =>
@@ -306,9 +318,12 @@ module.exports = grammar({
     type: ($) =>
       prec.right(
         seq(
-          optional(field("mutability", "mut")),
-          field("name", $.identifier),
-          optional(field("generics", $.type_arguments)),
+          optional(field("mutability", choice("mut", "frozen", "sending"))),
+          optional("dyn"),
+          choice(
+            seq(field("name", $.identifier), optional(field("generics", $.type_arguments))),
+            seq("(", commaSepTrailing($.type), ")"),
+          ),
           optional(field("pointer", choice($.smart_pointer_suffix, $.any_pointer_suffix))),
         ),
       ),
@@ -382,13 +397,15 @@ module.exports = grammar({
       ),
 
     with_statement: ($) =>
-      seq(
+      prec.dynamic(1, seq(
         "with",
-        field("resource", $.expression),
+        field("resource", alias($._with_resource, $.expression)),
         "as",
         field("binding", $.identifier),
         field("body", $.block),
-      ),
+      )),
+
+    _with_resource: ($) => prec(PREC.CALL + 1, $._statement_expression),
 
     unsafe_statement: ($) => seq("unsafe", field("body", $.block)),
     ehir_statement: ($) =>
@@ -415,7 +432,7 @@ module.exports = grammar({
 
     assignment_target: ($) => choice($.path, $.field_access_expression),
 
-    expression_statement: ($) => $._statement_expression,
+    expression_statement: ($) => $.expression,
 
     if_statement: ($) =>
       seq(
@@ -484,7 +501,7 @@ module.exports = grammar({
         field("pattern", $.match_pattern),
         optional(field("binding", $.match_binding)),
         "=>",
-        field("value", $.expression),
+        field("value", choice($.expression, $.block)),
       ),
 
     match_pattern: ($) =>
@@ -493,6 +510,7 @@ module.exports = grammar({
         $.path,
         $.integer_literal,
         $.float_literal,
+        $.formatted_string_literal,
         $.string_literal,
         $.boolean_literal,
       ),
@@ -535,6 +553,7 @@ module.exports = grammar({
         $.path,
         $.integer_literal,
         $.float_literal,
+        $.formatted_string_literal,
         $.string_literal,
         $.boolean_literal,
       ),
@@ -579,7 +598,7 @@ module.exports = grammar({
     unsafe_expression: ($) => seq("unsafe", field("body", $.block)),
 
     parenthesized_expression: ($) => seq("(", $.expression, ")"),
-    tuple_literal: ($) => seq("(", commaSep1($.expression), optional(","), ")"),
+    tuple_literal: ($) => seq("(", commaSepTrailing($.expression), ")"),
     array_literal: ($) => seq("[", commaSepTrailing($.expression), "]"),
     array_repeat_literal: ($) =>
       seq("[", field("value", $.expression), ";", field("size", $.expression), "]"),
@@ -624,7 +643,7 @@ module.exports = grammar({
         seq(
           field("object", $.expression),
           ".",
-          field("field", $.identifier),
+          field("field", choice($.identifier, $.integer)),
         ),
       ),
     index_expression: ($) =>

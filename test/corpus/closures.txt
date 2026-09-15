@@ -33,16 +33,18 @@ fn main() -> u32 {
                 (expression_block
                   (statement
                     (expression_statement
-                      (call_expression
-                        (path
-                          (path_segment
-                            (identifier)))
-                        (argument_list
-                          (expression
-                            (range_expression
-                              (path
-                                (path_segment
-                                  (identifier)))))))))
+                      (expression
+                        (range_expression
+                          (call_expression
+                            (path
+                              (path_segment
+                                (identifier)))
+                            (argument_list
+                              (expression
+                                (range_expression
+                                  (path
+                                    (path_segment
+                                      (identifier)))))))))))
                   (expression
                     (range_expression
                       (call_expression
