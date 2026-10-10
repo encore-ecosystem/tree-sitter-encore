@@ -36,8 +36,11 @@ module.exports = grammar({
     [$.impl_definition],
     [$.path_segment],
     [$.type, $.path_segment],
+    [$.generic_parameter, $.type],
+    [$.generic_parameters, $.type_arguments],
     [$.expression_statement, $.expression],
     [$.expression_block, $.expression_statement],
+    [$.expression_block, $.block],
     [$.match_statement, $.match_expression],
     [$.match_statement_arm, $.match_expression_arm],
     [$.unsafe_statement, $.unsafe_expression],
@@ -58,14 +61,14 @@ module.exports = grammar({
     float: (_) => /[0-9]+\.[0-9]+/,
 
     string_literal: (_) =>
-      token(seq('"', repeat(choice(/[^"\\\n]+/, /\\./)), '"')),
+      token(seq('"', repeat(choice(/[^"\\]+/, /\\./)), '"')),
     formatted_string_literal: ($) =>
       seq(
-        token(seq("f", '"')),
+        token('f"'),
         repeat(choice($.formatted_string_text, $.formatted_string_interpolation)),
         '"',
       ),
-    formatted_string_text: (_) => token.immediate(choice(/[^"{}\\\n]+/, /\\./)),
+    formatted_string_text: (_) => token.immediate(choice(/[^"{}\\]+/, /\\./)),
     formatted_string_interpolation: ($) =>
       seq("{", optional(field("value", $.expression)), "}"),
     boolean_literal: (_) => choice("true", "false"),
@@ -100,7 +103,7 @@ module.exports = grammar({
     decorator_application: ($) =>
       seq("@", field("value", $.expression)),
 
-    any_pointer_suffix: (_) => "&",
+    any_pointer_suffix: (_) => choice("&", "*"),
     smart_pointer_suffix: (_) => seq("<", choice("H", "S"), ">"),
 
     loop_label: ($) => seq("<", "'", field("name", $.identifier), ">"),
@@ -201,7 +204,7 @@ module.exports = grammar({
     struct_signature: ($) =>
       seq(
         field("name", $.identifier),
-        optional(field("generics", $.type_arguments)),
+        optional(field("generics", alias($.generic_parameters, $.type_arguments))),
         optional(
           field(
             "fields",
@@ -219,7 +222,7 @@ module.exports = grammar({
         optional(field("visibility", $.visibility_modifier)),
         "enum",
         field("name", $.identifier),
-        optional(field("generics", $.type_arguments)),
+        optional(field("generics", alias($.generic_parameters, $.type_arguments))),
         "{",
         repeat(seq($.struct_signature, optional(","))),
         "}",
@@ -230,7 +233,7 @@ module.exports = grammar({
         optional(field("visibility", $.visibility_modifier)),
         "trait",
         field("name", $.identifier),
-        optional(field("generics", $.type_arguments)),
+        optional(field("generics", alias($.generic_parameters, $.type_arguments))),
         optional(field("bases", $.trait_bases)),
         "{",
         repeat(
@@ -248,7 +251,7 @@ module.exports = grammar({
     impl_definition: ($) =>
       seq(
         "impl",
-        optional(field("generics", $.type_arguments)),
+        optional(field("generics", alias($.generic_parameters, $.type_arguments))),
         optional(field("trait_name", $.identifier)),
         optional(field("trait_args", $.type_arguments)),
         "for",
@@ -291,7 +294,7 @@ module.exports = grammar({
         optional(field("async", "async")),
         "fn",
         field("name", $.identifier),
-        optional(field("generics", $.type_arguments)),
+        optional(field("generics", alias($.generic_parameters, $.type_arguments))),
         "(",
         field("parameters", commaSepTrailing($.parameter)),
         ")",
@@ -315,13 +318,22 @@ module.exports = grammar({
 
     type_arguments: ($) => seq("[", commaSepTrailing($.type), "]"),
 
+    // Preserve the public type_arguments/type node shape used by highlight
+    // queries, while declarations accept bounds and uses remain plain types.
+    generic_parameters: ($) => seq("[", commaSepTrailing(alias($.generic_parameter, $.type)), "]"),
+    generic_parameter: ($) => seq(
+      field("name", $.identifier),
+      optional(seq(":", field("bound", $.type), repeat(seq("+", field("bound", $.type))))),
+    ),
+
     type: ($) =>
       prec.right(
         seq(
           optional(field("mutability", choice("mut", "frozen", "sending"))),
           optional("dyn"),
           choice(
-            seq(field("name", $.identifier), optional(field("generics", $.type_arguments))),
+            seq(field("name", $.identifier), repeat(seq("::", field("name", $.identifier))),
+              optional(field("generics", $.type_arguments))),
             seq("(", commaSepTrailing($.type), ")"),
           ),
           optional(field("pointer", choice($.smart_pointer_suffix, $.any_pointer_suffix))),
@@ -340,7 +352,7 @@ module.exports = grammar({
     block: ($) => seq("{", repeat($.statement), "}"),
 
     expression_block: ($) =>
-      seq("{", repeat($.statement), field("value", $.expression), "}"),
+      seq("{", repeat($.statement), optional(field("value", $.expression)), "}"),
 
     statement: ($) =>
       choice(
