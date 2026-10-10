@@ -1,0 +1,161 @@
+==================
+bounded declarations, qualified pointers, and diverging if arms
+==================
+
+struct Buffer[T: Hashable + Debug] { ptr: T* value: core::option::Option[T] }
+enum Outcome[T: Debug] { Value(T) Empty }
+trait Read[T: Debug] { fn read(self: Self) -> T }
+impl[T: Debug] Read[T] for Buffer[T] {
+    fn read(self: Self) -> T { ret self.value }
+}
+fn choose[T: Debug](value: T, enabled: bool) -> T {
+    let selected = if enabled { value } else { ret value }
+    ret selected
+}
+
+---
+
+(source_file
+  (struct_definition
+    (struct_signature
+      (identifier)
+      (type_arguments
+        (type
+          (identifier)
+          (type
+            (identifier))
+          (type
+            (identifier))))
+      (c_like_struct_fields
+        (typed_parameter
+          (identifier)
+          (type
+            (identifier)
+            (any_pointer_suffix)))
+        (typed_parameter
+          (identifier)
+          (type
+            (identifier)
+            (identifier)
+            (identifier)
+            (type_arguments
+              (type
+                (identifier))))))))
+  (enum_definition
+    (identifier)
+    (type_arguments
+      (type
+        (identifier)
+        (type
+          (identifier))))
+    (struct_signature
+      (identifier)
+      (tuple_struct_fields
+        (type
+          (identifier))))
+    (struct_signature
+      (identifier)))
+  (trait_definition
+    (identifier)
+    (type_arguments
+      (type
+        (identifier)
+        (type
+          (identifier))))
+    (function_signature
+      (identifier)
+      (parameter
+        (receiver_parameter
+          (type
+            (identifier))))
+      (type
+        (identifier))))
+  (impl_definition
+    (type_arguments
+      (type
+        (identifier)
+        (type
+          (identifier))))
+    (identifier)
+    (type_arguments
+      (type
+        (identifier)))
+    (type
+      (identifier)
+      (type_arguments
+        (type
+          (identifier))))
+    (impl_body
+      (impl_method_definition
+        (function_signature
+          (identifier)
+          (parameter
+            (receiver_parameter
+              (type
+                (identifier))))
+          (type
+            (identifier)))
+        (block
+          (statement
+            (return_statement
+              (expression
+                (range_expression
+                  (field_access_expression
+                    (expression
+                      (range_expression
+                        (path
+                          (path_segment
+                            (identifier)))))
+                    (identifier))))))))))
+  (function_definition
+    (function_signature
+      (identifier)
+      (type_arguments
+        (type
+          (identifier)
+          (type
+            (identifier))))
+      (parameter
+        (typed_parameter
+          (identifier)
+          (type
+            (identifier))))
+      (parameter
+        (typed_parameter
+          (identifier)
+          (type
+            (identifier))))
+      (type
+        (identifier)))
+    (block
+      (statement
+        (let_statement
+          (identifier)
+          (expression
+            (if_expression
+              (expression
+                (range_expression
+                  (path
+                    (path_segment
+                      (identifier)))))
+              (expression_block
+                (expression
+                  (range_expression
+                    (path
+                      (path_segment
+                        (identifier))))))
+              (expression_block
+                (statement
+                  (return_statement
+                    (expression
+                      (range_expression
+                        (path
+                          (path_segment
+                            (identifier))))))))))))
+      (statement
+        (return_statement
+          (expression
+            (range_expression
+              (path
+                (path_segment
+                  (identifier))))))))))

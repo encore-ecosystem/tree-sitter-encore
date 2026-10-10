@@ -740,7 +740,7 @@
     "fields": {
       "value": {
         "multiple": false,
-        "required": true,
+        "required": false,
         "types": [
           {
             "type": "expression",
@@ -2591,6 +2591,16 @@
     "type": "type",
     "named": true,
     "fields": {
+      "bound": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "type",
+            "named": true
+          }
+        ]
+      },
       "generics": {
         "multiple": false,
         "required": false,
@@ -2620,7 +2630,7 @@
         ]
       },
       "name": {
-        "multiple": false,
+        "multiple": true,
         "required": false,
         "types": [
           {
@@ -3120,6 +3130,10 @@
   },
   {
     "type": "extern",
+    "named": false
+  },
+  {
+    "type": "f\"",
     "named": false
   },
   {

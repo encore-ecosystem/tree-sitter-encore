@@ -1,0 +1,28 @@
+fn display(name: str, count: u32) -> str {
+    ret f"Hi {name}, {count + 1_u32}!"
+//      ^ string
+//        ^ string
+//           ^ punctuation.special
+//            ^ variable
+//                ^ punctuation.special
+//                   ^ punctuation.special
+//                    ^ variable
+//                          ^ operator
+//                            ^ number
+//                             ^ type.builtin
+}
+
+fn calls(value: u32) -> str {
+    ret f"{display(value)} {value.abs()}"
+//         ^ function.call
+//                          ^ variable
+//                                ^ function.method.call
+}
+
+fn unicode(name: str) -> str {
+    ret f"😀 Привет
+next {name}!\n"
+//   ^ punctuation.special
+//     ^ variable
+//           ^ string.escape
+}

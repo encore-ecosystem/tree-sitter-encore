@@ -6,6 +6,7 @@
       "camelcase": "Encore",
       "title": "Encore",
       "scope": "source.encore",
+      "highlights": "queries/highlights.scm",
       "file-types": [
         "enq"
       ],
